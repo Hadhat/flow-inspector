@@ -66,8 +66,8 @@ class FlowBackendExporter(Exporter):
 
 	def writeEventDataSet(self, analyzer, mainid, subid, eventtype, start, end, description, parameterdump):
 		self.events.update(
-			{"analyzer": analyzer, "mainid": mainid, "subid": subid, "eventtype": eventtype, "start": start},
-			{"$set": {"end": end, "description": description, "parameterdump": parameterdump}}
+			{"analyzer": analyzer, "mainid": mainid, "subid": subid, "eventtype": eventtype, "start_time": start},
+			{"$set": {"end_time": end, "description": description, "parameterdump": parameterdump}}
 		)
 		#events.flushCache()
 	

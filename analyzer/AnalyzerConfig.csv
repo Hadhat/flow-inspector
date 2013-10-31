@@ -8,11 +8,39 @@ TimestampAnalyzer||tolerance||d1.5
 TimestampAnalyzer||differential_mode||bTrue
 TimestampAnalyzer||field||stimestamp
 
+UCastPktAnalyzer||class||sEWMAAnalyzer
+UCastPktAnalyzer||st||d0.0
+UCastPktAnalyzer||p_st||d0.2
+UCastPktAnalyzer||ewmv||d0.0
+UCastPktAnalyzer||p_ewmv||d0.2
+UCastPktAnalyzer||L||d5
+UCastPktAnalyzer||tolerance||d10000000000
+UCastPktAnalyzer||differential_mode||bTrue
+UCastPktAnalyzer||field||sifHCOutUcastPkts
+
+UCastPktAnalyzer2||class||sThresholdAnalyzer
+UCastPktAnalyzer2||field||sifOutUcastPkts
+UCastPktAnalyzer2||lower_limit||n
+UCastPktAnalyzer2||upper_limit||d0
+UCastPktAnalyzer2||differential_mode||bTrue
+
 LinkStateAnalyzer||class||sLinkStateAnalyzer
 
-ThresholdAnalyzer5||class||sThresholdAnalyzer
-ThresholdAnalyzer5||field||sifInErrors
-ThresholdAnalyzer5||limit||d1
-ThresholdAnalyzer5||differential_mode||bTrue
+InDiscardsAnalyzer||class||sThresholdAnalyzer
+InDiscardsAnalyzer||field||sifInDiscards
+InDiscardsAnalyzer||lower_limit||d0
+InDiscardsAnalyzer||upper_limit||n
+InDiscardsAnalyzer||differential_mode||bTrue
 
-#ThresholdAnalyzer||interface_phy||ifOutErrors||d1
+OutDiscardsAnalyzer||class||sThresholdAnalyzer
+OutDiscardsAnalyzer||field||sifOutDiscards
+OutDiscardsAnalyzer||lower_limit||d0
+OutDiscardsAnalyzer||upper_limit||n
+OutDiscardsAnalyzer||differential_mode||bTrue
+
+ifOutQLenAnalyzer||class||sThresholdAnalyzer
+ifOutQLenAnalyzer||field||sifOutQLen
+ifOutQLenAnalyzer||lower_limit||d0
+ifOutQLenAnalyzer||upper_limit||n
+ifOutQLenAnalyzer||differential_mode||bTrue
+

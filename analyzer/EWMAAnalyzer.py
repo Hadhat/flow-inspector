@@ -58,6 +58,9 @@ class EWMAAnalyzer(analyzer.Analyzer):
 	def analyzeDataSet(self, state, data):
 
 		value = data[state['mainid']][state['subid']][self.field]
+		
+		if value == None:
+			return
 
 		if self.differential_mode:
 			if state['last_value'] is None:

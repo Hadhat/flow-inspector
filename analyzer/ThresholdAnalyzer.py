@@ -1,6 +1,7 @@
 import analyzer
 import csv_configurator
 import math
+import sys
 
 from ordered_dict import OrderedDict
 
@@ -14,7 +15,8 @@ class ThresholdAnalyzer(analyzer.Analyzer):
 	
 		# constant parameters for all instances
 		self.field = parameters['field']
-		self.limit = parameters['limit']
+		self.upper_limit = parameters['upper_limit']
+		self.lower_limit = parameters['lower_limit']
 		self.differential_mode = parameters['differential_mode']
 
 	# get new data set and pass it to individual instances
@@ -29,16 +31,20 @@ class ThresholdAnalyzer(analyzer.Analyzer):
 				try:
 					tmp = self.analyzeDataSet(self.state[str(main) + "-" + str(sub)], data)
 					if tmp != None:
-						result.append(tmp)
-				except:
+						result.extend(tmp)
+				except KeyError:
 					self.state[str(main) + "-" + str(sub)] = {
 						'mainid': main,
 						'subid': sub,
-						'last_value': None
+						'last_value': None,
+						'begin_low_exception': -1,
+						'begin_high_exception': -1,
+						'low_values': [],
+						'high_values': []
 					} 
 					tmp = self.analyzeDataSet(self.state[str(main) + "-" + str(sub)], data)
 					if tmp != None:
-						result.append(tmp)
+						result.extend(tmp)
 
 		return result
 
@@ -48,6 +54,9 @@ class ThresholdAnalyzer(analyzer.Analyzer):
 	def analyzeDataSet(self, state, data):
 
 		value = data[state['mainid']][state['subid']][self.field]
+
+		if value is None:
+			return
 
 		if self.differential_mode:
 			if state['last_value'] is None:
@@ -61,11 +70,33 @@ class ThresholdAnalyzer(analyzer.Analyzer):
 		parameterdump = OrderedDict([
 			("mainid", state['mainid']),
 			("subid", state['subid']),
-			("limit", self.limit),
+			("lower_limit", self.lower_limit),
+			("upper_limit", self.upper_limit),
 			("field", self.field),
 			("value", value)
 		])
 
-		if value > self.limit:
-			return (self.name, state['mainid'], state['subid'], "ValueException", timestamp, timestamp, "%s > %s" % (value, self.limit), str(parameterdump))
+		result = []
+
+		# check for violation of lower_limit
+		if self.lower_limit is not None and value > self.lower_limit:
+			if state['begin_low_exception'] == -1:
+				state['begin_low_exception'] = timestamp
+				state['low_values'] = []
+			state['low_values'] += [value]
+			result.append((self.name, state['mainid'], state['subid'], "ValueException", state['begin_low_exception'], timestamp, "%s > %s" % (state['low_values'], self.lower_limit), str(parameterdump)))
+		else:
+			state['begin_low_exception'] = -1
+	
+		# check for violation of upper_limit
+		if self.upper_limit is not None and value < self.upper_limit:
+			if state['begin_high_exception'] == -1:
+				state['begin_high_exception'] = timestamp
+				state['high_values'] = []
+			state['high_values'] += [value]
+			result.append((self.name, state['mainid'], state['subid'], "ValueException", state['begin_high_exception'], timestamp, "%s < %s" % (state['high_values'], self.upper_limit), str(parameterdump)))
+		else:
+			state['begin_high_exception'] = -1
+
+		return result
 

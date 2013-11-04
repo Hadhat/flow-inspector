@@ -56,8 +56,15 @@ while True:
 			db_table = db.getCollection(table)
 
 			# find timestamps before and after event timestamp
-			low_time = db_table.find({"timestamp": {"$lt": event["start_time"]}, "router": event["mainid"], "if_number": event["subid"]}, {"distinct timestamp": 1}, sort = {"timestamp": 0}, limit = 2)[1]["timestamp"]
-			high_time = db_table.find({"timestamp": {"$gt": event["end_time"]}, "router": event["mainid"], "if_number": event["subid"]}, {"distinct timestamp": 1}, sort = {"timestamp": 1}, limit = 2)[1]["timestamp"]
+			try:
+				low_time = db_table.find({"timestamp": {"$lte": event["start_time"]}, "router": event["mainid"], "if_number": event["subid"]}, {"distinct timestamp": 1}, sort = {"timestamp": 0}, limit = 3)[-1]["timestamp"]
+			except IndexError:
+				low_time = db_table.min("timestamp")
+
+			try:
+				high_time = db_table.find({"timestamp": {"$gte": event["end_time"]}, "router": event["mainid"], "if_number": event["subid"]}, {"distinct timestamp": 1}, sort = {"timestamp": 1}, limit = 3)[-1]["timestamp"]
+			except IndexError:
+				high_time = db_table.max("timestamp")
 
 			# prepare and print table
 			print "\nData from " + table + ":"

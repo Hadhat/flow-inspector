@@ -34,7 +34,8 @@ class FlowBackendImporter(Importer):
 		self.tables = [self.db.getCollection("interface_phy"), self.db.getCollection("ifXTable")]
 		
 		### !!! ### DEBUG ### !!! ### 
-#		last_timestamp = 1377201600
+		#last_timestamp = 1381824000
+		
 
 		# get all timestamps
 		self.timestamps = set()

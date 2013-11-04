@@ -56,21 +56,24 @@ class EWMAAnalyzer(analyzer.Analyzer):
 	# analyze data for one instance
 	# state - state for the analyzer, values that differ for each instance, i.e. last_value, st, ewmv
 	def analyzeDataSet(self, state, data):
-
-		value = data[state['mainid']][state['subid']][self.field]
-		
-		if value == None:
-			return
-
-		if self.differential_mode:
-			if state['last_value'] is None:
-				state['last_value'] = data[state['mainid']][state['subid']][self.field]
-				return
-			t = value - state['last_value']
-		else:
-			t = value
-
 	 	timestamp = data[state['mainid']][state['subid']]["timestamp"]
+		
+		try:
+			value = data[state['mainid']][state['subid']][self.field]
+
+			if self.differential_mode:
+				if state['last_value'] is None:
+					state['last_value'] = data[state['mainid']][state['subid']][self.field]
+					return
+				t = value - state['last_value']
+			else:
+				t = value
+	
+		except KeyError:
+			return (self.name, state['mainid'], state['subid'], "KeyError", timestamp, timestamp, "%s not in data" % self.field, str(sys.exc_info()))
+	
+		except TypeError:
+			return (self.name, state['mainid'], state['subid'], "TypeError", timestamp, timestamp, "%s not in data" % self.field, str(sys.exc_info()))
 
 		state['st'] = self.p_st * t + (1 - self.p_st) * state['st']
 		state['ewmv'] = self.p_ewmv * (t - state['st'])**2 + (1 - self.p_ewmv) * state['ewmv']

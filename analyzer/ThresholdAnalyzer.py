@@ -18,6 +18,7 @@ class ThresholdAnalyzer(analyzer.Analyzer):
 		self.upper_limit = parameters['upper_limit']
 		self.lower_limit = parameters['lower_limit']
 		self.differential_mode = parameters['differential_mode']
+		self.overrun_protection = parameters['overrun_protection']
 
 	# get new data set and pass it to individual instances
 	def passDataSet(self, data):
@@ -52,20 +53,27 @@ class ThresholdAnalyzer(analyzer.Analyzer):
 	# analyze data for one instance
 	# state - state for the analyzer, values that differ for each instance, i.e. last_value, st, ewmv
 	def analyzeDataSet(self, state, data):
-
-		value = data[state['mainid']][state['subid']][self.field]
-
-		if value is None:
-			return
-
-		if self.differential_mode:
-			if state['last_value'] is None:
-				state['last_value'] = data[state['mainid']][state['subid']][self.field]
-				return
-			value = value - state['last_value']
-			state['last_value'] = data[state['mainid']][state['subid']][self.field]
-
 		timestamp = data[state['mainid']][state['subid']]["timestamp"]
+		
+		try:
+			value = data[state['mainid']][state['subid']][self.field]
+
+			if self.differential_mode:
+				if state['last_value'] is None:
+					state['last_value'] = data[state['mainid']][state['subid']][self.field]
+					return
+#				if value < state['last_value'] and self.overrun_protection:
+#					print "!!!", value, state['last_value']
+#					value = 2**32 + value
+				value = value - state['last_value']
+				state['last_value'] = data[state['mainid']][state['subid']][self.field]
+	
+		except KeyError:
+			return ((self.name, state['mainid'], state['subid'], "KeyError", timestamp, timestamp, "%s not in data" % self.field, str(sys.exc_info())),)
+
+		except TypeError:
+			return ((self.name, state['mainid'], state['subid'], "TypeError", timestamp, timestamp, "%s not in data" % self.field, str(sys.exc_info())),)
+
 
 		parameterdump = OrderedDict([
 			("mainid", state['mainid']),

@@ -23,6 +23,7 @@ UCastPktAnalyzer2||field||sifOutUcastPkts
 UCastPktAnalyzer2||lower_limit||n
 UCastPktAnalyzer2||upper_limit||d0
 UCastPktAnalyzer2||differential_mode||bTrue
+UCastPktAnalyzer2||overrun_protection||bTrue
 
 LinkStateAnalyzer||class||sLinkStateAnalyzer
 
@@ -31,16 +32,19 @@ InDiscardsAnalyzer||field||sifInDiscards
 InDiscardsAnalyzer||lower_limit||d0
 InDiscardsAnalyzer||upper_limit||n
 InDiscardsAnalyzer||differential_mode||bTrue
+InDiscardsAnalyzer||overrun_protection||bTrue
 
 OutDiscardsAnalyzer||class||sThresholdAnalyzer
 OutDiscardsAnalyzer||field||sifOutDiscards
 OutDiscardsAnalyzer||lower_limit||d0
 OutDiscardsAnalyzer||upper_limit||n
 OutDiscardsAnalyzer||differential_mode||bTrue
+OutDiscardsAnalyzer||overrun_protection||bTrue
 
 ifOutQLenAnalyzer||class||sThresholdAnalyzer
 ifOutQLenAnalyzer||field||sifOutQLen
 ifOutQLenAnalyzer||lower_limit||d0
 ifOutQLenAnalyzer||upper_limit||n
 ifOutQLenAnalyzer||differential_mode||bTrue
+ifOutQLenAnalyzer||overrun_protection||bFalse
 

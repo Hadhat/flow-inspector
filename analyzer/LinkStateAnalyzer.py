@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import analyzer
+import sys
 
 class LinkStateAnalyzer(analyzer.Analyzer):
 	
@@ -38,42 +39,50 @@ class LinkStateAnalyzer(analyzer.Analyzer):
 	def analyzeDataSet(self, state, data):
 		
 		timestamp = data[state['router']][state['interface']]["timestamp"]
-		record = data[state['router']][state['interface']]
 
-		parameterdump = {
-			"router": state['router'],
-			"interface": state['interface'],
-			"last_ifOperStatus": state['last_ifOperStatus'],
-			"last_ifAdminStatus": state['last_ifAdminStatus'],
-			"last_timestamp": state['last_timestamp'],
-			"begin_mismatch": state['begin_mismatch'],
-			"timestamp": timestamp,
-			"ifOperStatus": record["ifOperStatus"],
-			"ifAdminStatus": record["ifAdminStatus"]
-		}
+		try:
+			record = data[state['router']][state['interface']]
+
+			parameterdump = {
+				"router": state['router'],
+				"interface": state['interface'],
+				"last_ifOperStatus": state['last_ifOperStatus'],
+				"last_ifAdminStatus": state['last_ifAdminStatus'],
+				"last_timestamp": state['last_timestamp'],
+				"begin_mismatch": state['begin_mismatch'],
+				"timestamp": timestamp,
+				"ifOperStatus": record["ifOperStatus"],
+				"ifAdminStatus": record["ifAdminStatus"]
+			}
 		
-		result = []
+			result = []
 
-		# check for status mismatch
-		if (record["ifOperStatus"] != record["ifAdminStatus"]):
-			if state['begin_mismatch'] == -1:
-				state['begin_mismatch'] = timestamp
-			result.append((self.name, state['router'], state['interface'], "Mismatch", state['begin_mismatch'], timestamp, "%s <> %s" % (record["ifOperStatus"], record["ifAdminStatus"]), str(parameterdump)))
-		else:
-			state['begin_mismatch'] = -1
+			# check for status mismatch
+			if (record["ifOperStatus"] != record["ifAdminStatus"]):
+				if state['begin_mismatch'] == -1:
+					state['begin_mismatch'] = timestamp
+					result.append((self.name, state['router'], state['interface'], "Mismatch", state['begin_mismatch'], timestamp, "%s <> %s" % (record["ifOperStatus"], record["ifAdminStatus"]), str(parameterdump)))
+				else:
+					state['begin_mismatch'] = -1
 
-		# check for status change in ifOperStatus
-		if (record["ifOperStatus"] != state['last_ifOperStatus']):
-			result.append((self.name, state['router'], state['interface'], "Change in ifOperStatus", state['last_timestamp'], timestamp, "%s -> %s" % (state['last_ifOperStatus'], record["ifOperStatus"]), str(parameterdump)))
-			state['last_ifOperStatus'] = record["ifOperStatus"]
+			# check for status change in ifOperStatus
+			if (record["ifOperStatus"] != state['last_ifOperStatus']):
+				result.append((self.name, state['router'], state['interface'], "Change in ifOperStatus", state['last_timestamp'], timestamp, "%s -> %s" % (state['last_ifOperStatus'], record["ifOperStatus"]), str(parameterdump)))
+				state['last_ifOperStatus'] = record["ifOperStatus"]
 
-		# check for status change in ifAdminStatus
-		if (record["ifAdminStatus"] != state['last_ifAdminStatus']):
-			result.append((self.name, state['router'], state['interface'], "Change in ifAdminStatus", state['last_timestamp'], timestamp, "%s -> %s" % (state['last_ifAdminStatus'], record["ifAdminStatus"]), str(parameterdump)))
-			state['last_ifAdminStatus'] = record["ifAdminStatus"]
+			# check for status change in ifAdminStatus
+			if (record["ifAdminStatus"] != state['last_ifAdminStatus']):
+				result.append((self.name, state['router'], state['interface'], "Change in ifAdminStatus", state['last_timestamp'], timestamp, "%s -> %s" % (state['last_ifAdminStatus'], record["ifAdminStatus"]), str(parameterdump)))
+				state['last_ifAdminStatus'] = record["ifAdminStatus"]
 
-		state['last_timestamp'] = timestamp
-		return result
+			state['last_timestamp'] = timestamp
+			return result
+
+		except KeyError:
+			return ((self.name, state['router'], state['interface'], "KeyError", timestamp, timestamp, "some field not in data", str(sys.exc_info())),)
+
+		except TypeError:
+			return ((self.name, state['router'], state['interface'], "TypeError", timestamp, timestamp, "%s not in data" % self.field, str(sys.exc_info())),)
 
 	@staticmethod
 	def getInstances(data):

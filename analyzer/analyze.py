@@ -33,8 +33,8 @@ if __name__ == "__main__":
 	except:
 
 		importer = importer.FlowBackendImporter()
-		exporter = (exporter.FlowBackendExporter(), exporter.ConsoleExporter())
-#		exporter = (exporter.FlowBackendExporter(),)
+#		exporter = (exporter.FlowBackendExporter(), exporter.ConsoleExporter())
+		exporter = (exporter.FlowBackendExporter(),)
 	
 		# Skip first results 
 		skip = 10
@@ -70,7 +70,7 @@ if __name__ == "__main__":
 		
 			# pass and process data
 			result = analyzer.passDataSet(data)
-		
+			
 			# export results
 			if len(result) > 0:
 				for res in result:

@@ -13,7 +13,15 @@ import backend
 import mail
 
 def report_backend_usage(dst_db):
-	report_string = ""
+	report_string = "Table sizes:\n\n"
+	
+	table_sizes = dst_db.get_table_sizes()
+	for table in table_sizes:
+		print table, table_sizes[table]
+		report_string += table.ljust(20) + " " + str(round(float(table_sizes[table]) / 1000000000, 2)).ljust(7) + "GB\n"
+	print report_string
+	sys.exit(0)
+
 	for table in  dst_db.getCollectionList():
 		coll = dst_db.getCollection(table)
 		firstTime = None
@@ -26,7 +34,10 @@ def report_backend_usage(dst_db):
 			pass
 		report_string +=  "Table:  " +  table.ljust(30) +  ' Number of entries:  ' + str(coll.count()).ljust(10)
 		if firstTime != None:
-			report_string += "First: " + str(datetime.datetime.fromtimestamp(firstTime)).ljust(10) + " Last: " + str(datetime.datetime.fromtimestamp(lastTime)).ljust(10) + '\n'
+			first = datetime.datetime.fromtimestamp(firstTime)
+			last = datetime.datetime.fromtimestamp(lastTime)
+			diff = last - first
+			report_string += "First: " + str(first).ljust(10) + " Last: " + str(last).ljust(10) + " Duration: " + str(diff).ljust(10) + '\n'
 		else:
 			report_string += "\n"
 	return report_string

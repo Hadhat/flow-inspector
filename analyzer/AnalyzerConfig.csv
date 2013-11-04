@@ -1,13 +1,3 @@
-TimestampAnalyzer||class||sEWMAAnalyzer
-TimestampAnalyzer||st||d300.0
-TimestampAnalyzer||p_st||d0.15
-TimestampAnalyzer||ewmv||d0.0
-TimestampAnalyzer||p_ewmv||d0.15
-TimestampAnalyzer||L||d2
-TimestampAnalyzer||tolerance||d1.5
-TimestampAnalyzer||differential_mode||bTrue
-TimestampAnalyzer||field||stimestamp
-
 UCastPktAnalyzer||class||sEWMAAnalyzer
 UCastPktAnalyzer||st||d0.0
 UCastPktAnalyzer||p_st||d0.2
@@ -27,24 +17,48 @@ UCastPktAnalyzer2||overrun_protection||bTrue
 
 LinkStateAnalyzer||class||sLinkStateAnalyzer
 
-InDiscardsAnalyzer||class||sThresholdAnalyzer
-InDiscardsAnalyzer||field||sifInDiscards
-InDiscardsAnalyzer||lower_limit||d0
-InDiscardsAnalyzer||upper_limit||n
-InDiscardsAnalyzer||differential_mode||bTrue
-InDiscardsAnalyzer||overrun_protection||bTrue
+# InDiscardsAnailyzer||class||sThresholdAnalyzer
+# InDiscardsAnalyzer||field||sifInDiscards
+# InDiscardsAnalyzer||lower_limit||d0
+# InDiscardsAnalyzer||upper_limit||n
+# InDiscardsAnalyzer||differential_mode||bTrue
+# InDiscardsAnalyzer||overrun_protection||bTrue
 
-OutDiscardsAnalyzer||class||sThresholdAnalyzer
-OutDiscardsAnalyzer||field||sifOutDiscards
-OutDiscardsAnalyzer||lower_limit||d0
-OutDiscardsAnalyzer||upper_limit||n
-OutDiscardsAnalyzer||differential_mode||bTrue
-OutDiscardsAnalyzer||overrun_protection||bTrue
+# OutDiscardsAnalyzer||class||sThresholdAnalyzer
+# OutDiscardsAnalyzer||field||sifOutDiscards
+# OutDiscardsAnalyzer||lower_limit||d0
+# OutDiscardsAnalyzer||upper_limit||n
+# OutDiscardsAnalyzer||differential_mode||bTrue
+# OutDiscardsAnalyzer||overrun_protection||bTrue
 
 ifOutQLenAnalyzer||class||sThresholdAnalyzer
 ifOutQLenAnalyzer||field||sifOutQLen
 ifOutQLenAnalyzer||lower_limit||d0
 ifOutQLenAnalyzer||upper_limit||n
 ifOutQLenAnalyzer||differential_mode||bTrue
-ifOutQLenAnalyzer||overrun_protection||bFalse
+# ifOutQLenAnalyzer||overrun_protection||bFalse
+
+IfInErrors||class||sThresholdAnalyzer
+IfInErrors||field||sifInErrors
+IfInErrors||lower_limit||d1000
+IfInErrors||upper_limit||n
+IfInErrors||differential_mode||bTrue
+
+IfOutErrors||class||sThresholdAnalyzer
+IfOutErrors||field||sifOutErrors
+IfOutErrors||lower_limit||d1000
+IfOutErrors||upper_limit||n
+IfOutErrors||differential_mode||bTrue
+
+IfInDiscards||class||sThresholdAnalyzer
+IfInDiscards||field||sifInDiscards
+IfInDiscards||lower_limit||d1000
+IfInDiscards||upper_limit||n
+IfInDiscards||differential_mode||bTrue
+
+IfOutDiscards||class||sThresholdAnalyzer
+IfOutDiscards||field||sifOutDiscards
+IfOutDiscards||lower_limit||d1000
+IfOutDiscards||upper_limit||n
+IfOutDiscards||differential_mode||bFalse
 

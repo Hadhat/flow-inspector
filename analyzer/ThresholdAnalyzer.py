@@ -18,7 +18,7 @@ class ThresholdAnalyzer(analyzer.Analyzer):
 		self.upper_limit = parameters['upper_limit']
 		self.lower_limit = parameters['lower_limit']
 		self.differential_mode = parameters['differential_mode']
-		self.overrun_protection = parameters['overrun_protection']
+#		self.overrun_protection = parameters['overrun_protection']
 
 	# get new data set and pass it to individual instances
 	def passDataSet(self, data):

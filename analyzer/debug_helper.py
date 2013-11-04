@@ -35,41 +35,20 @@ keys = {}
 limit_counter = 0
 while True:
 
-	if response == "n":
-		limit_counter += 1
-		response = ""
-
-	if response == "":
-		events = table_events.find({"mainid": args.router, "subid": args.interface}, sort = OrderedDict([("start_time", 0), ("mainid", 1), ("subid", 1)]), limit = str(limit_counter * 50) + ",50")
-
-		pt = PrettyTable(["start_time", "end_time", "analyzer", "mainid", "subid", "eventtype", "description", "key"])
-		pt.align["mainid"] = "l"
-		pt.align["subid"] = "l"
-		pt.align["description"] = "l"
-
-		keys = {}
-		counter = 0
-
-		for event in events:
-				counter += 1
-				keys[str(counter)] = dict((key, event[key]) for key in ("start_time", "mainid", "subid", "analyzer", "eventtype"))
-				pt.add_row([datetime.datetime.fromtimestamp(int(event['start_time'])), datetime.datetime.fromtimestamp(int(event['end_time'])), event['analyzer'], event['mainid'], event['subid'], event['eventtype'], event['description'], counter])
-		print pt
-	else:
+	if response.isdigit():
 		event = table_events.find(keys[response])[0]
 		
 		# print event
 		pt = PrettyTable(["start_time", "end_time", "analyzer", "mainid", "subid", "eventtype", "description"])
-		pt.align["mainid"] = "l"
-		pt.align["subid"] = "l"
-		pt.align["description"] = "l"
+		pt.align = "l"
+		
 		pt.add_row([datetime.datetime.fromtimestamp(int(event['start_time'])), datetime.datetime.fromtimestamp(int(event['end_time'])), event['analyzer'], event['mainid'], event['subid'], event['eventtype'], event['description']])
 		print pt
 		
 		# print details from measurements
 		detail_data = {
-			"interface_phy": ["ifAdminStatus", "ifOperStatus", "ifOutUcastPkts"],
-			"ifXTable": ["ifHCOutUcastPkts"]
+			"interface_phy": ["ifAdminStatus", "ifOperStatus", "ifInDiscards", "ifInErrors", "ifInUnknownProtos", "ifOutUcastPkts", "ifOutDiscards", "ifOutErrors", "ifOutQLen"],
+			"ifXTable": ["ifHCInOctets", "ifHCInUcastPkts", "ifHCInMulticastPkts", "ifHCInBroadcastPkts", "ifHCOutOctets", "ifHCOutUcastPkts", "ifHCOutMulticastPkts", "ifHCOutBroadcastPkts"]
 		}
 
 		for table, columns in detail_data.iteritems():
@@ -83,9 +62,35 @@ while True:
 			# prepare and print table
 			print "\nData from " + table + ":"
 			pt = PrettyTable(["timestamp"] + columns)
+			pt.align = "l"
+
 			data = db_table.find({"timestamp": {"$gte": low_time}, "Timestamp": {"$lte": high_time}, "router": event["mainid"], "if_number": event["subid"]})
 			for row in data:
 				pt.add_row([datetime.datetime.fromtimestamp(int(row['timestamp']))] + [row[field] for field in columns])
 			print pt
+
+	elif response == "n":
+		limit_counter += 1
+		response = ""
 	
+	elif response == "p":
+		limit_counter -= 1
+		response = ""
+
+	if response == "":
+		events = table_events.find({"mainid": args.router, "subid": args.interface}, sort = OrderedDict([("start_time", 0), ("mainid", 1), ("subid", 1)]), limit = str(limit_counter * 50) + ",50")
+		
+		pt = PrettyTable(["start_time", "end_time", "analyzer", "mainid", "subid", "eventtype", "description", "key"])
+		pt.align = "l"
+
+		keys = {}
+		counter = 0
+
+		for event in events:
+				counter += 1
+				keys[str(counter)] = dict((key, event[key]) for key in ("start_time", "mainid", "subid", "analyzer", "eventtype"))
+				pt.add_row([datetime.datetime.fromtimestamp(int(event['start_time'])), datetime.datetime.fromtimestamp(int(event['end_time'])), event['analyzer'], event['mainid'], event['subid'], event['eventtype'], event['description'], counter])
+		print pt
+	
+
 	response = raw_input()

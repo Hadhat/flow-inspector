@@ -309,7 +309,8 @@ def main():
 	else:
 		files = [ args.data_path ]
 
-	files = sorted(files, key=lambda file: os.path.basename(file).rstrip(".txt").split("-")[2])
+	# sort by timestamp, then router
+	files.sort(key=lambda file: os.path.basename(file).rstrip(".txt").split("-")[2:0:-1])
 
 	# statistical counters
 	time_begin = time.time()
@@ -318,23 +319,27 @@ def main():
 
 	# local document storage
 	lines_since_commit = 0
-	last_timestamp = sys.maxint
+	
+	if len(files) == 0:
+		sys.exit(1)
+	(last_router, last_timestamp) = os.path.basename(files[0]).rstrip(".txt").split("-")[1:3]
 
 	# loop over all files
 	for file in files:
-			# timestamp of current file
-			timestamp = os.path.basename(file).rstrip(".txt").split("-")[2]
+			# timestamp and router of current file
+			(router, timestamp) = os.path.basename(file).rstrip(".txt").split("-")[1:3]
 			
 			# files are commited after parse_snmp_file is done, so files are commit at once
-			# to merge ifXTable and interface_phy we need to ensure that all files for one timestamp are comitted at once
-			# files are sorted by timestamp in the beginning, so a bigger timestamp means it's safe to commit now
-			if lines_since_commit > cache_treshold and timestamp > last_timestamp:
+			# to merge ifXTable and interface_phy we need to ensure that all files for one timestamp and router are comitted at once
+			# files are sorted by timestamp and router in the beginning, so another timestamp or another router mean it's safe to commit now
+			if lines_since_commit > cache_treshold and (timestamp != last_timestamp or router != last_router):
 				commit_doc(doc, collections)
 				lines_since_commit = 0
 
 			(read_lines, doc) = parse_snmp_file(file, doc)
 			lines_since_commit += read_lines
 			counter += read_lines
+			last_router = router
 			last_timestamp = timestamp
 
 			# do statistical calculation

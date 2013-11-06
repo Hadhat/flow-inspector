@@ -41,3 +41,9 @@ events_index||name||sevents_index
 events_index||table||sevents
 events_index||use_type||spredef_value
 events_index||value||tsUNIQUE INDEX|sstart_time, mainid, subid, eventtype, analyzer
+
+events_table_options||name||stable_options
+events_table_options||table||sevents
+events_table_options||use_type||spredef_value
+events_table_options||value||sENGINE=MyISAM ROW_FORMAT=DYNAMIC
+events_table_options||only||smysql

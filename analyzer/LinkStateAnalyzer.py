@@ -61,9 +61,9 @@ class LinkStateAnalyzer(analyzer.Analyzer):
 			if (record["ifOperStatus"] != record["ifAdminStatus"]):
 				if state['begin_mismatch'] == -1:
 					state['begin_mismatch'] = timestamp
-					result.append((self.name, state['router'], state['interface'], "Mismatch", state['begin_mismatch'], timestamp, "%s <> %s" % (record["ifOperStatus"], record["ifAdminStatus"]), str(parameterdump)))
-				else:
-					state['begin_mismatch'] = -1
+				result.append((self.name, state['router'], state['interface'], "Mismatch", state['begin_mismatch'], timestamp, "%s <> %s" % (record["ifOperStatus"], record["ifAdminStatus"]), str(parameterdump)))
+			else:
+				state['begin_mismatch'] = -1
 
 			# check for status change in ifOperStatus
 			if (record["ifOperStatus"] != state['last_ifOperStatus']):

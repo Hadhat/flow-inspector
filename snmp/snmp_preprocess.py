@@ -54,7 +54,7 @@ def parse_snmp_file(file, doc):
 			if oid in oidmap:
 				update_doc(
 					doc,
-					"interface_phy",
+					"interface_perf",
 					ip_src + '-' + interface + '-' + timestamp,
 					{"router": ip_src, "if_number": interface,
 						"timestamp": timestamp},
@@ -136,7 +136,7 @@ def parse_snmp_file(file, doc):
 			if oid in oidmap:
 				update_doc(
 					doc,
-					"ifXTable",
+					"interface_perf",
 					ip_src + '-' + if_number + '-' + timestamp,
 					{"router": ip_src, "timestamp": timestamp, "if_number": if_number},
 					{oidmap[oid]["name"]: oidmap[oid]["fct"](value)}
@@ -238,7 +238,7 @@ def parse_snmp_file(file, doc):
 		# increment counter for processed lines
 		lines += 1
 
-	return (lines, timestamp, doc)
+	return (lines, doc)
 
 
 def update_doc(doc, table, table_key, db_key, db_values):
@@ -279,10 +279,11 @@ def commit_doc(doc, collections):
 			time_last = time_current 
 	doc.clear()
 
+# main method
 def main():
 	doc = {}
 
-        parser = common.get_default_argument_parser("Parse SNMP data files and import data to database")
+	parser = common.get_default_argument_parser("Parse SNMP data files and import data to database")
 
 	parser.add_argument("data_path", help="Path to the data that should be inserted. This must be a file if neither -d or -r are given.")
 	parser.add_argument("-d", "--directory", action="store_true", help="Parse directory instead of a single file. The directory will be scanned for <directory>/*.txt:")
@@ -298,27 +299,6 @@ def main():
 
 	collections = prepare_snmp_collections(dst_db, args.backend)
 	
-	# TODO: hacky ... make something more general ...
-	if backend == "mongo":
-		db = pymongo.Connection(args.dst_host, args.dst_port)[args.dst_database]
-		collection = db["snmp_raw"]
-		collection.ensure_index([("router", pymongo.ASCENDING), ("if_number", pymongo.ASCENDING), ("timestamp", pymongo.ASCENDING), ("type", pymongo.ASCENDING)])
-		collection.ensure_index([("router", pymongo.ASCENDING), ("if_ip", pymongo.ASCENDING), ("timestamp", pymongo.ASCENDING), ("type", pymongo.ASCENDING)])
-		collection.ensure_index([("ip_src", pymongo.ASCENDING), ("ip_dst", pymongo.ASCENDING), ("timestamp", pymongo.ASCENDING), ("type", pymongo.ASCENDING)])
-		collection.ensure_index([("ip_src", pymongo.ASCENDING), ("ip_dst", pymongo.ASCENDING), ("mask_dst", pymongo.ASCENDING), ("ip_gtw", pymongo.ASCENDING), ("timestamp", pymongo.ASCENDING), ("type", pymongo.ASCENDING)])
-
-		# restore generic backend collection
-		collection = dst_db.getCollection(name)
-	else: 
-	#	collection.createIndex("router")
-	#	collection.createIndex("if_number")
-	#	collection.createIndex("timestamp")
-	#	collection.createIndex("type")
-	#	collection.createIndex("ip_src")
-	#	collection.createIndex("ip_dst")
-		pass
-
-	# enviromental settings
 	cache_treshold = 10000000
 
 	# TODO: implies precedence of operators, maybe something better can be done here
@@ -328,7 +308,9 @@ def main():
 		files = glob.glob(args.data_path + "/*/*.txt")
 	else:
 		files = [ args.data_path ]
-	
+
+	files = sorted(files, key=lambda file: os.path.basename(file).rstrip(".txt").split("-")[2])
+
 	# statistical counters
 	time_begin = time.time()
 	time_last = time_begin
@@ -336,19 +318,24 @@ def main():
 
 	# local document storage
 	lines_since_commit = 0
-	timestamps = set()
-	
+	last_timestamp = sys.maxint
+
 	# loop over all files
 	for file in files:
-			(read_lines, timestamp, doc) = parse_snmp_file(file, doc)
-			lines_since_commit += read_lines
-			counter += read_lines
-			timestamps.add(timestamp)
-
+			# timestamp of current file
+			timestamp = os.path.basename(file).rstrip(".txt").split("-")[2]
+			
 			# files are commited after parse_snmp_file is done, so files are commit at once
-			if lines_since_commit > cache_treshold:
+			# to merge ifXTable and interface_phy we need to ensure that all files for one timestamp are comitted at once
+			# files are sorted by timestamp in the beginning, so a bigger timestamp means it's safe to commit now
+			if lines_since_commit > cache_treshold and timestamp > last_timestamp:
 				commit_doc(doc, collections)
 				lines_since_commit = 0
+
+			(read_lines, doc) = parse_snmp_file(file, doc)
+			lines_since_commit += read_lines
+			counter += read_lines
+			last_timestamp = timestamp
 
 			# do statistical calculation
 			time_current = time.time()
@@ -373,5 +360,7 @@ def main():
 	print "Processed %s lines in %s seconds (%s lines per second)" % (
 			counter, time_current - time_begin, counter / (time_current - time_begin))
 
+
+# call main method
 if __name__ == "__main__":
 	main()

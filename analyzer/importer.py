@@ -40,7 +40,7 @@ class FlowBackendImporter(Importer):
 		for name, fields in csv_configurator.read_field_dict_from_csv(config.data_backend, measurement_map_filename).items():
 			self.db.prepareCollection(name, fields)
 
-		self.tables = [self.db.getCollection("interface_phy"), self.db.getCollection("ifXTable")]
+		self.tables = [self.db.getCollection("interface_perf")]
 
 		# get all timestamps
 		self.timestamps = set()

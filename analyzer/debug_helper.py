@@ -24,7 +24,7 @@ parser.add_argument("--interface", default = "*")
 parser.add_argument("--start_time", default = "18446744073709551615")
 args = parser.parse_args()
 
-db = backend.databackend.getBackendObject(config.data_backend, config.data_backend_host, config.data_backend_port, config.data_backend_user, config.data_backend_password, config.data_backend_snmp_name)
+db = backend.databackend.getBackendObject(config.data_backend, config.data_backend_host, config.data_backend_port, config.data_backend_user, config.data_backend_password, config.data_backend_snmp_table)
 	
 table_events = db.getCollection("events")
 table_interface_phy = db.getCollection("interface_phy")
@@ -85,7 +85,7 @@ while True:
 		response = ""
 
 	if response == "":
-		events = table_events.find({"mainid": args.router, "subid": args.interface}, sort = OrderedDict([("start_time", 0), ("mainid", 1), ("subid", 1)]), limit = str(limit_counter * 50) + ",50")
+		events = table_events.find({"mainid": args.router, "subid": args.interface, "eventtype": {"$ne": "KeyError"}}, sort = OrderedDict([("start_time", 0), ("mainid", 0), ("subid", 0)]), limit = str(limit_counter * 50) + ",50")
 		
 		pt = PrettyTable(["start_time", "end_time", "analyzer", "mainid", "subid", "eventtype", "description", "key"])
 		pt.align = "l"

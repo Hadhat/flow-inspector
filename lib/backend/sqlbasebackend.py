@@ -797,7 +797,17 @@ class SQLBaseBackend(Backend):
 					where_clause = "WHERE "
 				else: 
 					where_clause += " AND "
-				where_clause += self.parse_field(field, spec[field])
+				
+				if (field == "$or"):
+					or_clause = '('
+					for clause in spec["$or"]:
+						if len(or_clause) > 1:
+							or_clause += ' OR '
+						or_clause += clause.keys()[0] + " = '" + clause.values()[0] + "'"
+					or_clause += ')'
+					where_clause += or_clause	
+				else:
+					where_clause += self.parse_field(field, spec[field])
 
 		if sort != None:
 			for field in sort:

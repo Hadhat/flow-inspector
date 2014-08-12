@@ -43,9 +43,12 @@ if __name__ == "__main__":
 		now = long(time.time())
 		last_ts = now - 60*60	 
 
+		# debug override
+		last_ts = -1
+
 		importer = importer.FlowBackendImporter(last_ts)
-		exporter = (exporter.FlowBackendExporter(), exporter.ConsoleExporter())
-#		exporter = (exporter.FlowBackendExporter(),)
+#		exporter = (exporter.FlowBackendExporter(), exporter.ConsoleExporter())
+		exporter = (exporter.FlowBackendExporter(),)
 	
 		# Skip first results 
 		#skip = 10

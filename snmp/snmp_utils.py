@@ -24,6 +24,8 @@ class Node(object):
 		""" Return label for GraphML document """
 		return str(self.ip) + "/" + str(self.netmask)
 
+	def __str__(self):
+		return (str(self.ip) + "/" + str(self.netmask))
 
 class Router(Node):
 
@@ -38,7 +40,7 @@ class Router(Node):
 							'     <data key="r">255</data>',
 							'     <data key="label">{1}</data>',
 							'     <data key="z">10</data>',
-							'    /node>']).format(self.getID(),
+							'    </node>']).format(self.getID(),
 												 self.getLabel())
 
 	def getID(self):
@@ -49,6 +51,8 @@ class Router(Node):
 		""" Return label for GraphML document """
 		return "Router " + str(self.ip)
 
+	def __str__(self):
+		return (str(self.ip) + "/" + str(self.netmask))
 
 class Interface(Node):
 
@@ -59,6 +63,7 @@ class Interface(Node):
 		super(Interface, self).__init__(ip)
 		self.ip = set()
 		self.ip.add(str(ip) + "/" + str(netmask))
+		self.netmask = netmask
 		self.ifnumber = ifnumber
 		self.router = router
 		self.description = description
@@ -89,7 +94,7 @@ class Interface(Node):
 		return label[:-2]
 
 	def __str__(self):
-		return ("Interface " + self.router.ip + "_" + self.ifnumber)
+		return ("Interface " + str(self.router.ip) + "_" + str(self.ifnumber))
 
 
 class Subnet(Node):
@@ -193,6 +198,7 @@ class Graph(object):
 		if self.isInterface(router_ip, interface_number):
 			interface = self.getInterfaceByNumber(router_ip, interface_number)
 			interface.ip.add(str(interface_ip) + "/" + str(interface_netmask))
+			self.db["Node"][str(interface_ip) + "/32"] = interface
 		else:
 			router = self.getRouter(router_ip)
 
@@ -205,6 +211,7 @@ class Graph(object):
 				interface.__class__ = Interface
 				interface.ips.add(str(interface_ip) + "/" + str(interface_netmask))
 				interface.ifnumber = interface_number
+				interface.netmask = interface_netmask
 				interface.router = router
 				interface.description = interface_description
 				interface.reason_creation += "\n" + reason_creation
@@ -216,8 +223,7 @@ class Graph(object):
 					reason_creation)
 				self.db["Node"][str(interface_ip) + "/32"] = interface
 
-			(self.db["Interface"]
-				[str(router_ip) + "_" + str(interface_number)]) = interface
+			self.db["Interface"][str(router_ip) + "_" + str(interface_number)] = interface
 			router.successors.add(interface)
 			self.all_nodes.add(interface)
 		
@@ -263,16 +269,14 @@ class Graph(object):
 		interface.successors.add(node)
 		#print interface.successors
 
-	def addRoute_Node2Subnet(self, node_ip, node_netmask, 
-							 subnet_ip, subnet_mask, reason_creation=""):
+	def addRoute_Node2Subnet(self, node_ip, node_netmask, subnet_ip, subnet_mask, reason_creation=""):
 		node = self.getNode(node_ip, node_netmask, reason_creation)
 		subnet = self.getSubnet(subnet_ip, subnet_mask, reason_creation)
 		node.successors.add(subnet)
 
-	def addRoute_Subnet2Node(self, subnet_ip, subnet_netmask,
-							 node_ip, node_netmask, reason_creation=""):
+	def addRoute_Subnet2Node(self, subnet_ip, subnet_netmask, node_ip, reason_creation=""):
 		subnet = self.getSubnet(subnet_ip, subnet_netmask, reason_creation)
-		node = self.getNode(node_ip, node_netmask, reason_creation)
+		node = self.getNode(node_ip, 32, reason_creation)
 		subnet.successors.add(node)
 
 	def addRoute_Node2Node(self, ip_a, netmask_a, ip_b, netmask_b):
@@ -297,7 +301,7 @@ XMLHEADER = '\n'.join([
 	'	<key attr.name="b" attr.type="int" for="node" id="b"/>',
 	'	<key attr.name="x" attr.type="float" for="node" id="x"/>',
 	'	<key attr.name="y" attr.type="float" for="node" id="y"/>',
-	'	<key attr.name="z" attr.type="float" for="node" id="z"/>'
+	'	<key attr.name="z" attr.type="float" for="node" id="z"/>',
 	'	<key attr.name="size" attr.type="float" for="node" id="size"/>'
 ])
 

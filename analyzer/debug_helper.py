@@ -85,7 +85,7 @@ while True:
 		response = ""
 
 	if response == "":
-		events = table_events.find({"mainid": args.router, "subid": args.interface, "eventtype": {"$ne": "KeyError"}}, sort = OrderedDict([("start_time", 0), ("mainid", 0), ("subid", 0)]), limit = str(limit_counter * 50) + ",50")
+		events = table_events.find({"mainid": args.router, "subid": args.interface, "eventtype": {"$ne": "TypeError"}}, sort = OrderedDict([("start_time", 0), ("mainid", 0), ("subid", 0)]), limit = str(limit_counter * 50) + ",50")
 		
 		pt = PrettyTable(["start_time", "end_time", "analyzer", "mainid", "subid", "eventtype", "description", "key"])
 		pt.align = "l"

@@ -7,6 +7,7 @@ UCastPktAnalyzer||L||d5
 UCastPktAnalyzer||tolerance||d10000000000
 UCastPktAnalyzer||differential_mode||bTrue
 UCastPktAnalyzer||field||sifHCOutUcastPkts
+UCastPktAnalyzer||show_in_metric||tsifHCOutUcastPkts
 
 UCastPktAnalyzer2||class||sThresholdAnalyzer
 UCastPktAnalyzer2||field||sifOutUcastPkts
@@ -14,8 +15,10 @@ UCastPktAnalyzer2||lower_limit||n
 UCastPktAnalyzer2||upper_limit||d0
 UCastPktAnalyzer2||differential_mode||bTrue
 UCastPktAnalyzer2||overrun_protection||bTrue
+UCastPktAnalyzer2||show_in_metric||tsifOutUcastPkts
 
 LinkStateAnalyzer||class||sLinkStateAnalyzer
+LinkStateAnalyzer||show_in_metric||tsifOperStatus|sifAdminStatus
 
 # InDiscardsAnailyzer||class||sThresholdAnalyzer
 # InDiscardsAnalyzer||field||sifInDiscards
@@ -37,28 +40,32 @@ ifOutQLenAnalyzer||lower_limit||d0
 ifOutQLenAnalyzer||upper_limit||n
 ifOutQLenAnalyzer||differential_mode||bTrue
 # ifOutQLenAnalyzer||overrun_protection||bFalse
+ifOutQLenAnalyzer||show_in_metric||tsifOutQLen
 
 IfInErrors||class||sThresholdAnalyzer
 IfInErrors||field||sifInErrors
 IfInErrors||lower_limit||d1000
 IfInErrors||upper_limit||n
 IfInErrors||differential_mode||bTrue
+IfInErrors||show_in_metric||tsifInErrors
 
 IfOutErrors||class||sThresholdAnalyzer
 IfOutErrors||field||sifOutErrors
 IfOutErrors||lower_limit||d1000
 IfOutErrors||upper_limit||n
 IfOutErrors||differential_mode||bTrue
+IfOutErrors||show_in_metric||tsifOutErrors
 
 IfInDiscards||class||sThresholdAnalyzer
 IfInDiscards||field||sifInDiscards
 IfInDiscards||lower_limit||d1000
 IfInDiscards||upper_limit||n
 IfInDiscards||differential_mode||bTrue
+IfInDiscards||show_in_metric||tsifInDiscards
 
 IfOutDiscards||class||sThresholdAnalyzer
 IfOutDiscards||field||sifOutDiscards
 IfOutDiscards||lower_limit||d1000
 IfOutDiscards||upper_limit||n
 IfOutDiscards||differential_mode||bFalse
-
+IfOutDiscards||show_in_metric||tsifOutDiscards

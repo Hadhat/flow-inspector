@@ -177,9 +177,9 @@ def findRouteEIGRP(ip_src, ip_dst):
 # allow this to be used as a single programs or within another program
 def main():
 	parser = argparse.ArgumentParser(description="Preprocess SNMP data")
-	parser.add_argument("src_ip")
-	parser.add_argument("dst_ip")
-	parser.add_argument("--timestamp")
+	parser.add_argument("src_ip", help="Source IP")
+	parser.add_argument("dst_ip", help="Destination IP")
+	parser.add_argument("--timestamp", help="Timestamp to evaluate data at")
 	parser.add_argument("--dst-host", nargs="?", default=config.data_backend_host, help="Backend database host")
 	parser.add_argument("--dst-port", nargs="?", default=config.data_backend_port, type=int, help="Backend database port")
 	parser.add_argument("--dst-user", nargs="?", default=config.data_backend_user, help="Backend database user")
@@ -188,7 +188,7 @@ def main():
 
 	args = parser.parse_args()
 
-	db = backend.databackend.getBackendObject(config.data_backend, config.data_backend_host, config.data_backend_port, config.data_backend_user, config.data_backend_password, config.data_backend_database)
+	db = backend.databackend.getBackendObject(config.data_backend, config.data_backend_host, config.data_backend_port, config.data_backend_user, config.data_backend_password, config.data_backend_snmp_table)
 	
 	global ipCidrRoute, interface_log
 	ipCidrRoute = db.getCollection("ipCidrRoute")
